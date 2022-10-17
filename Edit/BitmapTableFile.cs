@@ -117,7 +117,7 @@ namespace LibDescent.Edit
         };
 
         //TODO: This isn't internationalization safe, because c# makes it more painful than it needs to be to format something specifically
-        public static string GenerateBitmapsTable(EditorHAMFile datafile, PIGFile piggyFile, SNDFile sndFile)
+        public static string GenerateBitmapsTable(EditorHAMFile datafile, IImageProvider piggyFile, ISoundProvider sndFile)
         {
             StringBuilder stringBuilder = new StringBuilder();
             Robot robot; Weapon weapon; VClip vclip;
@@ -164,7 +164,7 @@ namespace LibDescent.Edit
             return stringBuilder.ToString();
         }
 
-        public static void TableWriteEClips(EditorHAMFile datafile, StringBuilder stringBuilder, PIGFile piggyFile, int start)
+        public static void TableWriteEClips(EditorHAMFile datafile, StringBuilder stringBuilder, IImageProvider piggyFile, int start)
         {
             int eclipCount = CountValidEClips(datafile);
             bool extra;
@@ -256,7 +256,7 @@ namespace LibDescent.Edit
             }
         }
 
-        public static void TableWriteWalls(EditorHAMFile datafile, StringBuilder stringBuilder, PIGFile piggyFile)
+        public static void TableWriteWalls(EditorHAMFile datafile, StringBuilder stringBuilder, IImageProvider piggyFile)
         {
             PIGImage img, frame;
             TMAPInfo info;
@@ -318,7 +318,7 @@ namespace LibDescent.Edit
             }
         }
 
-        public static int TableWriteTextures(EditorHAMFile datafile, StringBuilder stringBuilder, PIGFile piggyFile)
+        public static int TableWriteTextures(EditorHAMFile datafile, StringBuilder stringBuilder, IImageProvider piggyFile)
         {
             PIGImage img;
             TMAPInfo info;
@@ -387,7 +387,7 @@ namespace LibDescent.Edit
             return count;
         }
 
-        private static void TableWriteVClip(EditorHAMFile datafile, StringBuilder stringBuilder, VClip clip, int id, PIGFile piggyFile)
+        private static void TableWriteVClip(EditorHAMFile datafile, StringBuilder stringBuilder, VClip clip, int id, IImageProvider piggyFile)
         {
             if (clip.PlayTime != 0)
             {
@@ -398,7 +398,7 @@ namespace LibDescent.Edit
             }
         }
 
-        private static void TableWriteWeapon(EditorHAMFile datafile, StringBuilder stringBuilder, Weapon weapon, PIGFile piggyFile, int id)
+        private static void TableWriteWeapon(EditorHAMFile datafile, StringBuilder stringBuilder, Weapon weapon, IImageProvider piggyFile, int id)
         {
             if (weapon.RenderType == 0)
                 stringBuilder.Append("$WEAPON_UNUSED ");
@@ -487,7 +487,7 @@ namespace LibDescent.Edit
             stringBuilder.Append("\n");
         }
 
-        private static void TableWriteCockpits(EditorHAMFile datafile, StringBuilder stringBuilder, PIGFile piggyFile)
+        private static void TableWriteCockpits(EditorHAMFile datafile, StringBuilder stringBuilder, IImageProvider piggyFile)
         {
             stringBuilder.Append("$COCKPIT\n");
             foreach (ushort index in datafile.Cockpits)
@@ -517,7 +517,7 @@ namespace LibDescent.Edit
             }
         }
 
-        private static void TableWriteGauges(EditorHAMFile datafile, StringBuilder stringBuilder, PIGFile piggyFile)
+        private static void TableWriteGauges(EditorHAMFile datafile, StringBuilder stringBuilder, IImageProvider piggyFile)
         {
             stringBuilder.Append("$GAUGES");
             string name = "", lastname;
@@ -546,7 +546,7 @@ namespace LibDescent.Edit
             stringBuilder.Append("\n");
         }
 
-        private static void TableWriteGaugesHires(EditorHAMFile datafile, StringBuilder stringBuilder, PIGFile piggyFile)
+        private static void TableWriteGaugesHires(EditorHAMFile datafile, StringBuilder stringBuilder, IImageProvider piggyFile)
         {
             stringBuilder.Append("$GAUGES_HIRES");
             string name = "", lastname;
@@ -575,7 +575,7 @@ namespace LibDescent.Edit
             stringBuilder.Append("\n");
         }
 
-        private static void TableWriteSound(EditorHAMFile datafile, StringBuilder stringBuilder, int id, SNDFile sndFile)
+        private static void TableWriteSound(EditorHAMFile datafile, StringBuilder stringBuilder, int id, ISoundProvider sndFile)
         {
             int altID;
             if (datafile.Sounds[id] != 255)
@@ -589,7 +589,7 @@ namespace LibDescent.Edit
             }
         }
 
-        private static void TableWritePlayerShip(EditorHAMFile datafile, StringBuilder stringBuilder, Ship ship, PIGFile pigFile)
+        private static void TableWritePlayerShip(EditorHAMFile datafile, StringBuilder stringBuilder, Ship ship, IImageProvider IImageProvider)
         {
             stringBuilder.Append("$MARKER ");
             WriteModel(datafile, stringBuilder, datafile.PlayerShip.MarkerModel);
@@ -607,7 +607,7 @@ namespace LibDescent.Edit
             for (int i = 0; i < 14; i++)
             {
                 int bitmapID = datafile.ObjBitmaps[datafile.ObjBitmapPointers[datafile.FirstMultiBitmapNum + i]];
-                string name = pigFile.Bitmaps[bitmapID].Name;
+                string name = IImageProvider.Bitmaps[bitmapID].Name;
                 stringBuilder.AppendFormat("{0}.bbm ", name);
             }
             stringBuilder.Append("\n");
@@ -771,7 +771,7 @@ namespace LibDescent.Edit
         }
 
         //disgusting hacks for vertigo. 
-        public static string WriteVertigoAdditions(EditorVHAMFile datafile, PIGFile piggyFile)
+        public static string WriteVertigoAdditions(EditorVHAMFile datafile, IImageProvider piggyFile)
         {
             StringBuilder builder = new StringBuilder();
             for (int i = 0; i < datafile.Robots.Count; i++)
@@ -899,7 +899,7 @@ namespace LibDescent.Edit
             stringBuilder.Append("\n");
         }
 
-        private static void TableWriteWeaponV(EditorVHAMFile datafile, StringBuilder stringBuilder, Weapon weapon, PIGFile piggyFile, int id)
+        private static void TableWriteWeaponV(EditorVHAMFile datafile, StringBuilder stringBuilder, Weapon weapon, IImageProvider piggyFile, int id)
         {
             if (weapon.RenderType == 0)
                 stringBuilder.Append("$WEAPON_UNUSED ");

@@ -89,7 +89,7 @@ namespace LibDescent.Data
             return clip;
         }
 
-        public void RemapVClip(int firstFrame, PIGFile piggyFile)
+        public void RemapVClip(int firstFrame, IImageProvider piggyFile)
         {
             int numFrames = 0;
             int nextFrame = 0;

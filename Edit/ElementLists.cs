@@ -139,6 +139,24 @@ namespace LibDescent.Edit
             "White Laser LOD", "White Laser LOD 2", "White Laser Core", "Flash Missile", "Guided Missile", "Robot Vulcan", "Robot White Laser",
             "Robot White Laser Core", "Robot Flash Missile", "Mine" };
 
+        public static readonly string[] DefaultD1PolymodelNames = {"Medium Hulk", "Medium Hulk LOD", "Medium Lifter", "Spider Processor",
+                      "Spider Processor LOD", "Class 1 Drone", "Class 1 Drone LOD", "Class 2 Drone", "Class 2 Drone LOD", "Cloaked Driller",
+                      "Cloaked Driller LOD", "Cloaked Hulk", "Cloaked Hulk LOD", "Supervisor", "Alternate Lifter", "Alternate Lifter LOD",
+                      "Heavy Driller", "Heavy Driller LOD", "Gopher", "Laser Platform Robot", "Missile Platform Robot", "Splitter Pod", "Baby Spider",
+                      "Baby Spider LOD", "Fusion Hulk", "Supermech", "Supermech LOD", "Level 7 Boss", "Cloaked Lifter", "Cloaked Lifter LOD",
+                      "Class 1 Driller", "Class 1 Driller LOD", "Light Hulk", "Light Hulk LOD", "Advanced Lifter", "Advanced Lifter LOD",
+                      "Defense Prototype", "Defense Prototype LOD", "Level 27 Boss",
+                      "Reactor", "Reactor Destroyed",  "Mine Exit", "Mine Exit Destroyed",
+                      "Pyro GX",
+                      "Pyro GX LOD", "Pyro GX Dying", "Red Laser", "Red Laser LOD", "Red Laser LOD 2", "Red Laser Core", "Purple Laser", "Purple Laser LOD",
+                      "Purple Laser LOD 2", "Purple Laser Core", "Light Blue Laser", "Light Blue Laser LOD", "Light Blue Laser LOD2", "Light Blue Laser Core", "Green Laser",
+                      "Green Laser LOD", "Green Laser LOD 2", "Green Laser Core", "Concussion Missile", "Flare", "Robot Blue Laser", "Robot Blue Laser Core",
+                      "Fusion Blob", "Fusion Blob Core", "Homing Missile", "Smart Missile", "Mega Missile", "Robot Homing Missile", "Robot Concussion Missile", "Robot Red Laser",
+                      "Robot Red Laser Core", "Robot Green Laser", "Robot Green Laser Core", "Robot Mega Missile", "Yellow Laser", "Yellow Laser 2", "Yellow Laser 3", "Yellow Laser 4",
+                      "White Laser", "White Laser LOD", "White Laser LOD 2", "White Laser Core", "Flash Missile", "Guided Missile", "Mercury Missile", "Earthshaker Missile",
+                      "Robot Vulcan", "Robot White Laser", "Robot White Laser Core", "Robot Flash Missile", "Mine", "Earthshaker Child", "Robot Mercury Missile", "Robot Smart Missile",
+                      "Robot Earthshaker Missile", "Robot Earthshaker Missile Child", "Robot Homing Flash Missile"};
+
         public static readonly string[] DefaultSoundNames = {"Silence", "Seeker sight", "Seeker attack", "BPER sight", "BPER attack", "Boarshed sight", "Boarshed attack",
                       "TRN Racer sight", "TRN Racer attack", "Bulk Destroyer sight", "Unused laser fire", "Explosion", "Smart Blob launch",
                       "Laser level 1 fire", "Laser level 2 fire", "Laser level 3 fire", "Laser level 4 fire", "Player hit robot", "Spreadfire fire",
@@ -229,6 +247,14 @@ namespace LibDescent.Edit
                 return "New Model " + model.ToString();
             }
             return DefaultDemoPolymodelNames[model];
+        }
+        public static string GetD1ModelName(int model)
+        {
+            if (model >= DefaultD1PolymodelNames.Length)
+            {
+                return "New Model " + model.ToString();
+            }
+            return DefaultD1PolymodelNames[model];
         }
         public static string GetSoundName(int soundID)
         {

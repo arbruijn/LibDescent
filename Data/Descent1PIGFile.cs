@@ -28,13 +28,13 @@ using System.Linq;
 
 namespace LibDescent.Data
 {
-    public class Descent1PIGFile : IDataFile, IImageProvider, ISoundProvider
+    public class Descent1PIGFile : IImageDataFile, ISoundDataFile, IGameDataDataFile
     {
         private int DataPointer;
         private bool big;
         public bool LoadData { get; private set; }
-        public List<PIGImage> Bitmaps { get; }
-        public List<SoundData> Sounds { get; }
+        public List<PIGImage> Bitmaps { get; private set; }
+        public List<SoundData> Sounds { get; private set; }
 
         /// <summary>
         /// Amount of textures considered used by this PIG file.
@@ -43,15 +43,16 @@ namespace LibDescent.Data
         /// <summary>
         /// List of piggy IDs of all the textures available for levels.
         /// </summary>
-        public ushort[] Textures { get; private set; }
+        public List<ushort> Textures { get; private set; }
         /// <summary>
         /// List of information for mapping textures into levels.
         /// </summary>
-        public TMAPInfo[] TMapInfo { get; private set; }
+        public List<TMAPInfo> TMapInfo { get; private set; }
         /// <summary>
         /// List of sound IDs.
         /// </summary>
         public byte[] SoundIDs { get; private set; }
+        byte[] IGameDataProvider.Sounds { get { return SoundIDs; } }
         /// <summary>
         /// List to remap given sounds into other sounds when Descent is run in low memory mode.
         /// </summary>
@@ -63,7 +64,7 @@ namespace LibDescent.Data
         /// <summary>
         /// List of all VClip animations.
         /// </summary>
-        public VClip[] VClips { get; private set; }
+        public List<VClip> VClips { get; private set; }
         /// <summary>
         /// Number of EClips considered used by this PIG file.
         /// </summary>
@@ -71,7 +72,7 @@ namespace LibDescent.Data
         /// <summary>
         /// List of all Effect animations.
         /// </summary>
-        public EClip[] EClips { get; private set; }
+        public List<EClip> EClips { get; private set; }
         /// <summary>
         /// Number of WClips considered used by this PIG file.
         /// </summary>
@@ -79,7 +80,7 @@ namespace LibDescent.Data
         /// <summary>
         /// List of all Wall (door) animations.
         /// </summary>
-        public WClip[] WClips { get; private set; }
+        public List<WClip> WClips { get; private set; }
         /// <summary>
         /// Number of Robots considered used by this PIG file.
         /// </summary>
@@ -87,7 +88,7 @@ namespace LibDescent.Data
         /// <summary>
         /// List of all robots.
         /// </summary>
-        public Robot[] Robots { get; private set; }
+        public List<Robot> Robots { get; private set; }
         /// <summary>
         /// Number of Joints considered used by this PIG file.
         /// </summary>
@@ -95,7 +96,7 @@ namespace LibDescent.Data
         /// <summary>
         /// List of all robot joints used for animation.
         /// </summary>
-        public JointPos[] Joints { get; private set; }
+        public List<JointPos> Joints { get; private set; }
         /// <summary>
         /// Number of Weapons considered used by this PIG file.
         /// </summary>
@@ -103,7 +104,7 @@ namespace LibDescent.Data
         /// <summary>
         /// List of all weapons.
         /// </summary>
-        public Weapon[] Weapons { get; private set; }
+        public List<Weapon> Weapons { get; private set; }
         /// <summary>
         /// Number of Models considered used by this PIG file.
         /// </summary>
@@ -111,21 +112,21 @@ namespace LibDescent.Data
         /// <summary>
         /// List of all polymodels.
         /// </summary>
-        public Polymodel[] Models { get; private set; }
+        public List<Polymodel> Models { get; private set; }
         /// <summary>
         /// List of gauge piggy IDs.
         /// </summary>
-        public ushort[] Gauges { get; private set; }
+        public List<ushort> Gauges { get; private set; }
         public int NumObjBitmaps = 0; //This is important to track the unique number of obj bitmaps, to know where to inject new ones. 
         public int NumObjBitmapPointers = 0; //Also important to tell how many obj bitmap pointer slots the user have left. 
         /// <summary>
         /// List of piggy IDs available for polymodels.
         /// </summary>
-        public ushort[] ObjBitmaps { get; private set; }
+        public List<ushort> ObjBitmaps { get; private set; }
         /// <summary>
         /// List of pointers into the ObjBitmaps table for polymodels.
         /// </summary>
-        public ushort[] ObjBitmapPointers { get; private set; }
+        public List<ushort> ObjBitmapPointers { get; private set; }
         /// <summary>
         /// The player ship.
         /// </summary>
@@ -137,7 +138,7 @@ namespace LibDescent.Data
         /// <summary>
         /// List of piggy IDs for all heads-up display modes.
         /// </summary>
-        public ushort[] Cockpits { get; private set; }
+        public List<ushort> Cockpits { get; private set; }
         /// <summary>
         /// Number of editor object definitions considered used by this PIG file.
         /// </summary>
@@ -145,7 +146,7 @@ namespace LibDescent.Data
         /// <summary>
         /// Editor object defintions. Not generally useful, but contains reactor model number.  
         /// </summary>
-        public EditorObjectDefinition[] ObjectTypes { get; private set; }
+        public List<EditorObjectDefinition> ObjectTypes { get; private set; }
         /// <summary>
         /// The singular reactor.
         /// </summary>
@@ -157,11 +158,11 @@ namespace LibDescent.Data
         /// <summary>
         /// List of all powerups.
         /// </summary>
-        public Powerup[] Powerups { get; private set; }
+        public List<Powerup> Powerups { get; private set; }
         /// <summary>
         /// The index in the ObjBitmapPointers table of the first multiplayer color texture.
         /// </summary>
-        public int FirstMultiBitmapNum;
+        public int FirstMultiBitmapNum { get; set; }
         /// <summary>
         /// Table to remap piggy IDs to other IDs for low memory mode.
         /// </summary>
@@ -169,28 +170,36 @@ namespace LibDescent.Data
 
         public int exitModelnum, destroyedExitModelnum;
 
+        public List<Reactor> Reactors { get { return new Reactor[] { reactor }.ToList(); } }
+
+        public List<ushort> GaugesHires { get { return Gauges; } }
+
+        IGameDataProvider IGameDataProvider.Clone() { return Clone();  }
+
+        IGameDataDataFile IGameDataDataFile.Clone() { return Clone(); }
+
         public Descent1PIGFile(bool macPig = false, bool loadData = true)
         {
-            Textures = new ushort[800];
-            TMapInfo = new TMAPInfo[800];
+            Textures = new ushort[800].ToList();
+            TMapInfo = new TMAPInfo[800].ToList();
             SoundIDs = new byte[250];
             AltSounds = new byte[250];
-            VClips = new VClip[70];
-            EClips = new EClip[60];
-            WClips = new WClip[30];
-            Robots = new Robot[30];
-            Joints = new JointPos[600];
-            Weapons = new Weapon[30];
-            Models = new Polymodel[85];
+            VClips = new VClip[70].ToList();
+            EClips = new EClip[60].ToList();
+            WClips = new WClip[30].ToList();
+            Robots = new Robot[30].ToList();
+            Joints = new JointPos[600].ToList();
+            Weapons = new Weapon[30].ToList();
+            Models = new Polymodel[85].ToList();
             if (macPig)
-                Gauges = new ushort[85];
+                Gauges = new ushort[85].ToList();
             else
-                Gauges = new ushort[80];
-            ObjBitmaps = new ushort[210];
-            ObjBitmapPointers = new ushort[210];
-            Cockpits = new ushort[4];
-            ObjectTypes = new EditorObjectDefinition[100];
-            Powerups = new Powerup[29];
+                Gauges = new ushort[80].ToList();
+            ObjBitmaps = new ushort[210].ToList();
+            ObjBitmapPointers = new ushort[210].ToList();
+            Cockpits = new ushort[4].ToList();
+            ObjectTypes = new EditorObjectDefinition[100].ToList();
+            Powerups = new Powerup[29].ToList();
             BitmapXLATData = new ushort[1800];
             reactor = new Reactor();
 
@@ -282,15 +291,16 @@ namespace LibDescent.Data
                 }
 
                 numModels = br.ReadInt32();
+                Models.Clear();
                 for (int i = 0; i < numModels; i++)
                 {
-                    Models[i] = reader.ReadPolymodelInfo(br);
+                    Models.Add(reader.ReadPolymodelInfo(br));
                 }
                 for (int i = 0; i < numModels; i++)
                 {
                     Models[i].InterpreterData = br.ReadBytes(Models[i].ModelIDTASize);
                 }
-                for (int i = 0; i < Gauges.Length; i++)
+                for (int i = 0; i < Gauges.Count; i++)
                 {
                     Gauges[i] = br.ReadUInt16();
                 }
@@ -350,24 +360,36 @@ namespace LibDescent.Data
                 }
 
                 //heh
-                SoundIDs = br.ReadBytes(250);
-                AltSounds = br.ReadBytes(250);
+                for (int i = 0; i < 250; i++)
+                    SoundIDs[i] = br.ReadByte();
+                for (int i = 0; i < 250; i++)
+                    AltSounds[i] = br.ReadByte();
 
                 numObjects = br.ReadInt32();
                 for (int i = 0; i < 100; i++)
                 {
-                    ObjectTypes[i].type = (EditorObjectType)(br.ReadSByte());
+                    ObjectTypes[i] = new EditorObjectDefinition {
+                        type = (EditorObjectType)(br.ReadSByte()) };
                 }
                 for (int i = 0; i < 100; i++)
                 {
-                    ObjectTypes[i].id = br.ReadByte();
+                    ObjectTypes[i] = new EditorObjectDefinition { type = ObjectTypes[i].type, id = br.ReadByte() };
                 }
                 for (int i = 0; i < 100; i++)
                 {
-                    ObjectTypes[i].strength = new Fix(br.ReadInt32());
+                    ObjectTypes[i] = new EditorObjectDefinition
+                        {
+                            type = ObjectTypes[i].type,
+                            id = ObjectTypes[i].id,
+                            strength = new Fix(br.ReadInt32())
+                        };
                     //Console.WriteLine("type: {0}({3})\nid: {1}\nstr: {2}", ObjectTypes[i].type, ObjectTypes[i].id, ObjectTypes[i].strength, (int)ObjectTypes[i].type);
                 }
                 FirstMultiBitmapNum = br.ReadInt32();
+                reactor.ModelNum = -1;
+                for (int i = 0; i < ObjectTypes.Count && i < numObjects; i++)
+                    if (ObjectTypes[i].type == EditorObjectType.ControlCenter)
+                        reactor.ModelNum = ObjectTypes[i].id;
                 reactor.NumGuns = br.ReadInt32();
                 for (int y = 0; y < 4; y++)
                 {
@@ -522,9 +544,10 @@ namespace LibDescent.Data
                 this.WriteTMAPInfoDescent1(descentWriter, TMapInfo[i]);
             }
 
-            descentWriter.Write(SoundIDs);
-
-            descentWriter.Write(AltSounds);
+            for (int i = 0; i < 250; i++)
+                descentWriter.WriteByte(SoundIDs[i]);
+            for (int i = 0; i < 250; i++)
+                descentWriter.WriteByte(AltSounds[i]);
 
             descentWriter.Write((Int32)numVClips); //this value is bogus. rip
 
@@ -555,7 +578,7 @@ namespace LibDescent.Data
             descentWriter.Write((Int32)numJoints);
             for (int i = 0; i < 600; i++)
             {
-                JointPos joint = Joints[i];
+                JointPos joint = i < Joints.Count ? Joints[i] : new JointPos();
 
                 descentWriter.WriteInt16(joint.JointNum);
                 descentWriter.WriteInt16(joint.Angles.P);
@@ -591,14 +614,14 @@ namespace LibDescent.Data
                 descentWriter.Write(Models[i].InterpreterData, 0, Models[i].ModelIDTASize);
             }
 
-            for (int i = 0; i < Gauges.Length; i++)
+            for (int i = 0; i < Gauges.Count; i++)
             {
                 descentWriter.WriteUInt16(Gauges[i]);
             }
 
             for (int i = 0; i < 85; i++)
             {
-                if (Models[i] == null)
+                if (i >= Models.Count || Models[i] == null)
                 {
                     descentWriter.WriteInt32(-1);
                 }
@@ -610,7 +633,7 @@ namespace LibDescent.Data
 
             for (int i = 0; i < 85; i++)
             {
-                if (Models[i] == null)
+                if (i >= Models.Count || Models[i] == null)
                 {
                     descentWriter.WriteInt32(-1);
                 }
@@ -622,12 +645,12 @@ namespace LibDescent.Data
 
             for (int i = 0; i < 210; i++)
             {
-                descentWriter.WriteUInt16(ObjBitmaps[i]);
+                descentWriter.WriteUInt16((ushort)(i < ObjBitmaps.Count ? ObjBitmaps[i] : 0));
             }
 
             for (int i = 0; i < 210; i++)
             {
-                descentWriter.WriteUInt16(ObjBitmapPointers[i]);
+                descentWriter.WriteUInt16((ushort)(i < ObjBitmapPointers.Count ? ObjBitmapPointers[i] : 0));
             }
 
             descentWriter.WriteInt32(PlayerShip.ModelNum);
@@ -652,8 +675,10 @@ namespace LibDescent.Data
             }
 
             //heh
-            descentWriter.Write(SoundIDs, 0, 250);
-            descentWriter.Write(AltSounds, 0, 250);
+            for (int i = 0; i < 250; i++)
+                descentWriter.WriteByte(SoundIDs[i]);
+            for (int i = 0; i < 250; i++)
+                descentWriter.WriteByte(AltSounds[i]);
 
             descentWriter.WriteInt32(numObjects);
             for (int i = 0; i < 100; i++)
@@ -709,11 +734,19 @@ namespace LibDescent.Data
             {
                 var bitmap = Bitmaps[i];
 
+                if (bitmap.LocalName == null)
+                {
+                    bitmap.LocalName = new byte[8];
+                    for (int j = 0; j < bitmap.Name.Length && j < 8; j++)
+                        bitmap.LocalName[j] = (byte)bitmap.Name[j];
+                }
+
                 descentWriter.Write(bitmap.LocalName, 0, 8);
 
+                bitmap.DFlags = (bitmap.DFlags & ~128) | (bitmap.Width >= 256 ? 128 : 0);
                 descentWriter.WriteByte((byte)bitmap.DFlags);
-                descentWriter.WriteByte((byte)bitmap.Width);
-                descentWriter.WriteByte((byte)bitmap.Height);
+                descentWriter.WriteByte((byte)bitmap.BaseWidth);
+                descentWriter.WriteByte((byte)bitmap.BaseHeight);
                 descentWriter.WriteByte((byte)bitmap.Flags);
                 descentWriter.WriteByte((byte)bitmap.AverageIndex);
 
@@ -724,6 +757,13 @@ namespace LibDescent.Data
             for (int i = 0; i < Sounds.Count; i++)
             {
                 var sound = Sounds[i];
+
+                if (sound.LocalName == null)
+                {
+                    sound.LocalName = new byte[8];
+                    for (int j = 0; j < sound.Name.Length && j < 8; j++)
+                        sound.LocalName[j] = (byte)sound.Name[j];
+                }
 
                 //var nameBytes = NameHelper.GetNameBytes(sound.name, 8);
                 descentWriter.Write(sound.LocalName, 0, 8);
@@ -898,6 +938,89 @@ namespace LibDescent.Data
             writer.WriteFix(weapon.Lifetime);
             writer.WriteFix(weapon.DamageRadius);
             writer.WriteUInt16(weapon.CockpitPicture);
+        }
+
+        /// <summary>
+        /// Creates a deep copy of the Descent1PIGFile.
+        /// </summary>
+        /// <returns></returns>
+        public Descent1PIGFile Clone()
+        {
+            Descent1PIGFile datafile = (Descent1PIGFile)MemberwiseClone();
+            datafile.Textures = new List<ushort>();
+            foreach (ushort texture in Textures)
+                datafile.Textures.Add(texture);
+
+            datafile.TMapInfo = new List<TMAPInfo>();
+            foreach (TMAPInfo tmapInfo in TMapInfo)
+                datafile.TMapInfo.Add(tmapInfo.Clone());
+
+            datafile.SoundIDs = (byte[])SoundIDs.Clone();
+            datafile.AltSounds = (byte[])AltSounds.Clone();
+
+            datafile.VClips = new List<VClip>();
+            foreach (VClip clip in VClips)
+                datafile.VClips.Add(clip.Clone());
+
+            datafile.EClips = new List<EClip>();
+            foreach (EClip clip in EClips)
+                datafile.EClips.Add(clip.Clone());
+
+            datafile.WClips = new List<WClip>();
+            foreach (WClip clip in WClips)
+                datafile.WClips.Add(clip.Clone());
+
+            datafile.Robots = new List<Robot>();
+            foreach (Robot robot in Robots)
+                datafile.Robots.Add(robot.Clone());
+
+            datafile.Joints = new List<JointPos>();
+            foreach (JointPos joint in Joints)
+                datafile.Joints.Add(joint); //This doesn't need a clone since JointPos is a structure
+
+            datafile.Weapons = new List<Weapon>();
+            foreach (Weapon weapon in Weapons)
+                datafile.Weapons.Add(weapon.Clone());
+
+            datafile.Models = new List<Polymodel>();
+            foreach (Polymodel model in Models)
+                datafile.Models.Add(model.Clone());
+
+            datafile.Gauges = new List<ushort>();
+            foreach (ushort gauge in Gauges)
+                datafile.Gauges.Add(gauge);
+
+            datafile.ObjBitmaps = new List<ushort>();
+            foreach (ushort bitmap in ObjBitmaps)
+                datafile.ObjBitmaps.Add(bitmap);
+
+            datafile.ObjBitmapPointers = new List<ushort>();
+            foreach (ushort bitmap in ObjBitmapPointers)
+                datafile.ObjBitmapPointers.Add(bitmap);
+
+            datafile.PlayerShip = PlayerShip.Clone();
+
+            datafile.Cockpits = new List<ushort>();
+            foreach (ushort cockpit in Cockpits)
+                datafile.Cockpits.Add(cockpit);
+
+            datafile.reactor = reactor.Clone();
+
+            datafile.Powerups = new List<Powerup>();
+            foreach (Powerup powerup in Powerups)
+                datafile.Powerups.Add(powerup.Clone());
+
+            datafile.BitmapXLATData = (ushort[])BitmapXLATData.Clone();
+
+            datafile.Bitmaps = new List<PIGImage>();
+            foreach (PIGImage bitmap in Bitmaps)
+                datafile.Bitmaps.Add(bitmap.Clone());
+
+            datafile.Sounds = new List<SoundData>();
+            foreach (SoundData sound in Sounds)
+                datafile.Sounds.Add(sound.Clone());
+
+            return datafile;
         }
     }
 }

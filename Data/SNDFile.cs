@@ -56,8 +56,15 @@ namespace LibDescent.Data
                 else return Data.Length;
             }
         }
+
+        public SoundData Clone()
+        {
+            SoundData sound = (SoundData)MemberwiseClone();
+            sound.Data = Data == null ? null : (byte[])Data.Clone();
+            return sound;
+        }
     }
-    public class SNDFile : IDataFile, ISoundProvider
+    public class SNDFile : ISoundDataFile
     {
         //public List<string> sounds = new List<string>();
         public List<SoundData> Sounds { get; } = new List<SoundData>();

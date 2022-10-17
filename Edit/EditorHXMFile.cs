@@ -289,6 +289,26 @@ namespace LibDescent.Edit
                 BaseFile.ReplacedObjBitmapPtrs.Add(bm);
         }
 
+        public PIGImage GetImage(IImageProvider piggyFile, int id)
+        {
+            var Bitmaps = piggyFile.Bitmaps;
+            if (id >= Bitmaps.Count || id < 0) return Bitmaps[0];
+            return Bitmaps[id];
+        }
+
+        private static int GetBitmapIDFromName(IImageProvider pigFile, string name)
+        {
+            var Bitmaps = pigFile.Bitmaps;
+            for (int x = 0; x < Bitmaps.Count; x++)
+            {
+                if (Bitmaps[x].Name.Equals(name, StringComparison.OrdinalIgnoreCase))
+                {
+                    return x;
+                }
+            }
+            return 0;
+        }
+
         /// <summary>
         /// Generates all model's needed ObjBitmaps and ObjBitmapPointers
         /// </summary>
@@ -301,7 +321,7 @@ namespace LibDescent.Edit
             //Add base file ObjBitmaps to this mess
             for (int i = 0; i < BaseHAM.BaseFile.ObjBitmaps.Count; i++)
             {
-                img = BaseHAM.piggyFile.GetImage(BaseHAM.BaseFile.ObjBitmaps[i]);
+                img = GetImage(BaseHAM.piggyFile, BaseHAM.BaseFile.ObjBitmaps[i]);
                 if (!img.IsAnimated && !textureMapping.ContainsKey(img.Name))
                     textureMapping.Add(img.Name.ToLower(), i);
             }
@@ -317,7 +337,7 @@ namespace LibDescent.Edit
             {
                 for (int i = 0; i < AugmentFile.ObjBitmaps.Count; i++)
                 {
-                    img = BaseHAM.piggyFile.GetImage(AugmentFile.ObjBitmaps[i]);
+                    img = GetImage(BaseHAM.piggyFile, AugmentFile.ObjBitmaps[i]);
                     if (!textureMapping.ContainsKey(img.Name.ToLower()))
                         textureMapping.Add(img.Name.ToLower(), i + VHAMFile.NumDescent2ObjBitmaps);
                 }
@@ -342,7 +362,7 @@ namespace LibDescent.Edit
                 {
                     texName = model.TextureList[j].ToLower();
                     if (!textureMapping.ContainsKey(texName))
-                        newTextures.Add(BaseHAM.piggyFile.GetBitmapIDFromName(texName));
+                        newTextures.Add(GetBitmapIDFromName(BaseHAM.piggyFile, texName));
                 }
                 //Generate the new ObjBitmaps
                 foreach (int newID in newTextures)
@@ -361,7 +381,7 @@ namespace LibDescent.Edit
             for (int i = 0; i < ReplacedObjBitmaps.Count; i++)
             {
                 bm = ReplacedObjBitmaps[i];
-                img = BaseHAM.piggyFile.GetImage(bm.Data);
+                img = GetImage(BaseHAM.piggyFile, bm.Data);
                 if (!textureMapping.ContainsKey(img.Name.ToLower()))
                     textureMapping.Add(img.Name.ToLower(), bm.ReplacementID);
             }

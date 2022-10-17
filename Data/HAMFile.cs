@@ -27,7 +27,7 @@ using System.IO;
 
 namespace LibDescent.Data
 {
-    public class HAMFile : IDataFile
+    public class HAMFile : IGameDataDataFile
     {
         /// <summary>
         /// Version of the archive, needed for writing back. Version 2 has sound information, version 3 is latest supported, used by the release game.
@@ -123,7 +123,7 @@ namespace LibDescent.Data
         /// <summary>
         /// The index in the ObjBitmapPointers table of the first multiplayer color texture.
         /// </summary>
-        public int FirstMultiBitmapNum;
+        public int FirstMultiBitmapNum { get; set; }
         /// <summary>
         /// Table to remap piggy IDs to other IDs for low memory mode.
         /// </summary>
@@ -235,6 +235,16 @@ namespace LibDescent.Data
                 datafile.sounddata = (byte[])sounddata.Clone();
 
             return datafile;
+        }
+
+        IGameDataProvider IGameDataProvider.Clone()
+        {
+            return Clone();
+        }
+
+        IGameDataDataFile IGameDataDataFile.Clone()
+        {
+            return Clone();
         }
 
         public void Read(Stream stream)

@@ -357,6 +357,40 @@ namespace LibDescent.Edit
             }
         }
 
+        private static PIGImage GetImage(IImageProvider piggyFile, string name)
+        {
+            var Bitmaps = piggyFile.Bitmaps;
+            for (int x = 0; x < Bitmaps.Count; x++)
+            {
+                //todo: Dictionary
+                if (Bitmaps[x].Name.Equals(name, StringComparison.OrdinalIgnoreCase))
+                {
+                    return Bitmaps[x];
+                }
+            }
+            return Bitmaps[0];
+        }
+
+        public PIGImage GetImage(IImageProvider piggyFile, int id)
+        {
+            var Bitmaps = piggyFile.Bitmaps;
+            if (id >= Bitmaps.Count || id < 0) return Bitmaps[0];
+            return Bitmaps[id];
+        }
+
+        private static int GetBitmapIDFromName(IImageProvider pigFile, string name)
+        {
+            var Bitmaps = pigFile.Bitmaps;
+            for (int x = 0; x < Bitmaps.Count; x++)
+            {
+                if (Bitmaps[x].Name.Equals(name, StringComparison.OrdinalIgnoreCase))
+                {
+                    return x;
+                }
+            }
+            return 0;
+        }
+
         private void GenerateObjectBitmapTables()
         {
             ObjBitmaps.Clear();
@@ -370,7 +404,7 @@ namespace LibDescent.Edit
             //Add the HAM file's object bitmaps so they can be referenced. 
             for (int i = 0; i < BaseHAM.BaseFile.ObjBitmaps.Count; i++)
             {
-                img = BaseHAM.piggyFile.GetImage(BaseHAM.BaseFile.ObjBitmaps[i]);
+                img = GetImage(BaseHAM.piggyFile, BaseHAM.BaseFile.ObjBitmaps[i]);
                 if (!img.IsAnimated && !objectBitmapMapping.ContainsKey(img.Name))
                     objectBitmapMapping.Add(img.Name, i);
             }
@@ -393,7 +427,7 @@ namespace LibDescent.Edit
                     if (!objectBitmapMapping.ContainsKey(textureName.ToLower()))
                     {
                         objectBitmapMapping.Add(textureName.ToLower(), lastObjectBitmap);
-                        ObjBitmaps.Add((ushort)(BaseHAM.piggyFile.GetBitmapIDFromName(textureName)));
+                        ObjBitmaps.Add((ushort)(GetBitmapIDFromName(BaseHAM.piggyFile, textureName)));
                         lastObjectBitmap++;
                     }
                     ObjBitmapPointers.Add((ushort)objectBitmapMapping[textureName.ToLower()]);

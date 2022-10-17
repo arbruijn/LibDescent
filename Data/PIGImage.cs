@@ -382,5 +382,12 @@ namespace LibDescent.Data
             if (big) RLECompressedBig = true;
             Data = newdata;
         }
+
+        public PIGImage Clone()
+        {
+            PIGImage img = (PIGImage)MemberwiseClone();
+            img.Data = (byte[])Data.Clone();
+            return img;
+        }
     }
 }

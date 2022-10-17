@@ -8,12 +8,14 @@ namespace LibDescent.Edit
 {
     public class EditorHAMFile : IDataFile
     {
-        public HAMFile BaseFile { get; private set; }
+        public IGameDataDataFile BaseFile { get; private set; }
+
+        public int HAMVersion;
 
         /// <summary>
-        /// Reference to a pig file, for looking up image names.
+        /// Reference to a image provider, for looking up image names.
         /// </summary>
-        public PIGFile piggyFile;
+        public IImageProvider piggyFile;
 
         //Data tables.
         //TODO: These need to be rewritten to use new "editor friendly" classes.
@@ -118,9 +120,9 @@ namespace LibDescent.Edit
         private int NumRobotJoints;
 
         public bool ExportExtraData { get; set; } = true;
-        public bool CompatObjBitmaps { get; set; } = false;
+        public bool CompatObjBitmaps { get; set; } = true;
 
-        public EditorHAMFile(HAMFile baseFile, PIGFile piggyFile)
+        public EditorHAMFile(IGameDataDataFile baseFile, IImageProvider piggyFile)
         {
             BaseFile = baseFile;
             this.piggyFile = piggyFile;
@@ -148,7 +150,7 @@ namespace LibDescent.Edit
             SoundNames = new List<string>();
         }
 
-        public EditorHAMFile(PIGFile piggyFile) : this(new HAMFile(), piggyFile)
+        public EditorHAMFile(IImageProvider piggyFile) : this(new HAMFile(), piggyFile)
         {
         }
 
@@ -265,8 +267,10 @@ namespace LibDescent.Edit
             foreach (TMAPInfo tmapInfo in BaseFile.TMapInfo)
                 TMapInfo.Add(tmapInfo);
 
-            Array.Copy(BaseFile.Sounds, Sounds, 254);
-            Array.Copy(BaseFile.AltSounds, AltSounds, 254);
+            Sounds = new byte[BaseFile.Sounds.Length];
+            Array.Copy(BaseFile.Sounds, Sounds, BaseFile.Sounds.Length);
+            AltSounds = new byte[BaseFile.AltSounds.Length];
+            Array.Copy(BaseFile.AltSounds, AltSounds, BaseFile.AltSounds.Length);
 
             foreach (VClip clip in BaseFile.VClips)
                 VClips.Add(clip);
@@ -284,17 +288,20 @@ namespace LibDescent.Edit
                 Models.Add(model);
             foreach (ushort gauge in BaseFile.Gauges)
                 Gauges.Add(gauge);
-            foreach (ushort gauge in BaseFile.GaugesHires)
-                GaugesHires.Add(gauge);
+            if (BaseFile.GaugesHires != null)
+                foreach (ushort gauge in BaseFile.GaugesHires)
+                    GaugesHires.Add(gauge);
             PlayerShip = BaseFile.PlayerShip;
             foreach (ushort cockpit in BaseFile.Cockpits)
                 Cockpits.Add(cockpit);
-            foreach (Reactor reactor in BaseFile.Reactors)
-                Reactors.Add(reactor);
+            if (BaseFile.Reactors != null)
+                foreach (Reactor reactor in BaseFile.Reactors)
+                    Reactors.Add(reactor);
             foreach (Powerup powerup in BaseFile.Powerups)
                 Powerups.Add(powerup);
             FirstMultiBitmapNum = BaseFile.FirstMultiBitmapNum;
-            for (int i = 0; i < 2620; i++)
+            BitmapXLATData = new ushort[BaseFile.BitmapXLATData.Length];
+            for (int i = 0; i < BaseFile.BitmapXLATData.Length; i++)
                 BitmapXLATData[i] = BaseFile.BitmapXLATData[i];
             foreach (ushort bm in BaseFile.ObjBitmaps)
                 ObjBitmaps.Add(bm);
@@ -308,11 +315,16 @@ namespace LibDescent.Edit
         /// <param name="stream">The stream to read from.</param>
         public void Read(Stream stream)
         {
-            BaseFile.Read(stream);
+            if (BaseFile is Descent1PIGFile d1p)
+                d1p.Read(stream);
+            else if (BaseFile is HAMFile ham)
+                ham.Read(stream);
+            else
+                throw new Exception("Unknown game data provider");
 
             CreateLocalLists();
 
-            BinaryReader br = new BinaryReader(stream);
+            //BinaryReader br = new BinaryReader(stream);
             bool generateNameLists = true;
 
             if (generateNameLists)
@@ -374,7 +386,7 @@ namespace LibDescent.Edit
                     clip.OpenSound = -1;
                 if (clip.CloseSound < -1 || clip.CloseSound >= Sounds.Length)
                     clip.CloseSound = -1;
-                for (int i = 0; i < 50; i++)
+                for (int i = 0; i < clip.Frames.Length; i++)
                 {
                     if (clip.Frames[i] >= Textures.Count)
                         clip.Frames[i] = 0;
@@ -450,7 +462,7 @@ namespace LibDescent.Edit
                     weapon.Children = -1;
             }
 
-            for (int i = 0; i < 2620; i++)
+            for (int i = 0; i < BitmapXLATData.Length; i++)
             {
                 if (BitmapXLATData[i] > piggyFile.Bitmaps.Count)
                     BitmapXLATData[i] = 0;
@@ -490,12 +502,23 @@ namespace LibDescent.Edit
         }
 
         /// <summary>
+        /// Check if the ModelNum of the robot is safe to use
+        /// </summary>
+        /// <param name="robot">The robot to read the guns from.</param>
+        private bool RobotModelValid(Robot robot)
+        {
+            return robot.ModelNum != -1 &&
+                (robot.ModelNum != 0 || robot.NumGuns != 0 || robot.Mass != 0);
+        }
+
+        /// <summary>
         /// Transfers the gun information from a robot to a Polymodel instance.
         /// </summary>
         /// <param name="robot">The robot to read the guns from.</param>
         private void BuildModelAnimation(Robot robot)
         {
-            if (robot.ModelNum == -1) return;
+            if (!RobotModelValid(robot))
+                return;
             Polymodel model = Models[robot.ModelNum];
             List<FixAngles> jointlist = new List<FixAngles>();
             model.NumGuns = robot.NumGuns;
@@ -652,7 +675,12 @@ namespace LibDescent.Edit
                 Weapons[i].Name = ElementLists.GetWeaponName(i);
             for (int i = 0; i < BaseFile.Sounds.Length; i++)
                 SoundNames.Add(ElementLists.GetSoundName(i));
-            if (BaseFile.Version >= 3)
+            if (BaseFile is Descent1PIGFile)
+            {
+                for (int i = 0; i < BaseFile.Models.Count; i++)
+                    Models[i].Name = ElementLists.GetD1ModelName(i);
+            }
+            else if (HAMVersion >= 3)
             {
                 for (int i = 0; i < BaseFile.Models.Count; i++)
                     Models[i].Name = ElementLists.GetModelName(i);
@@ -664,6 +692,7 @@ namespace LibDescent.Edit
             }
             for (int i = 0; i < BaseFile.Powerups.Count; i++)
                 Powerups[i].Name = ElementLists.GetPowerupName(i);
+            if (BaseFile.Reactors != null)
             for (int i = 0; i < BaseFile.Reactors.Count; i++)
                 Reactors[i].Name = ElementLists.GetReactorName(i);
         }
@@ -686,7 +715,8 @@ namespace LibDescent.Edit
             Joints.Clear();
             foreach (Robot robot in Robots)
             {
-                LoadAnimations(robot, Models[robot.ModelNum]);
+                if (RobotModelValid(robot))
+                    LoadAnimations(robot, Models[robot.ModelNum]);
             }
             Console.WriteLine("Constructed {0} joints", Joints.Count);
             foreach (Reactor reactor in Reactors)
@@ -709,10 +739,10 @@ namespace LibDescent.Edit
             foreach (TMAPInfo tmapInfo in TMapInfo)
                 BaseFile.TMapInfo.Add(tmapInfo);
 
-            for (int i = 0; i < 254; i++)
+            for (int i = 0; i < Sounds.Length; i++)
                 BaseFile.Sounds[i] = Sounds[i];
 
-            for (int i = 0; i < 254; i++)
+            for (int i = 0; i < AltSounds.Length; i++)
                 BaseFile.AltSounds[i] = AltSounds[i];
             BaseFile.VClips.Clear();
             foreach (VClip clip in VClips)
@@ -745,14 +775,19 @@ namespace LibDescent.Edit
             BaseFile.Cockpits.Clear();
             foreach (ushort cockpit in Cockpits)
                 BaseFile.Cockpits.Add(cockpit);
-            BaseFile.Reactors.Clear();
-            foreach (Reactor reactor in Reactors)
-                BaseFile.Reactors.Add(reactor);
+            if (BaseFile.Reactors.Count == 1 && Reactors.Count == 1) // unfortunate D1 hack
+                BaseFile.Reactors[0] = Reactors[0];
+            else
+            {
+                BaseFile.Reactors.Clear();
+                foreach (Reactor reactor in Reactors)
+                    BaseFile.Reactors.Add(reactor);
+            }
             BaseFile.Powerups.Clear();
             foreach (Powerup powerup in Powerups)
                 BaseFile.Powerups.Add(powerup);
             BaseFile.FirstMultiBitmapNum = FirstMultiBitmapNum;
-            for (int i = 0; i < 2620; i++)
+            for (int i = 0; i < BitmapXLATData.Length; i++)
                 BaseFile.BitmapXLATData[i] = BitmapXLATData[i];
             BaseFile.ObjBitmaps.Clear();
             foreach (ushort bm in ObjBitmaps)
@@ -841,7 +876,18 @@ namespace LibDescent.Edit
                 }
             }
         }
-
+        private static int GetBitmapIDFromName(IImageProvider pigFile, string name)
+        {
+            var Bitmaps = pigFile.Bitmaps;
+            for (int x = 0; x < Bitmaps.Count; x++)
+            {
+                if (Bitmaps[x].Name.Equals(name, StringComparison.OrdinalIgnoreCase))
+                {
+                    return x;
+                }
+            }
+            return 0;
+        }
         private void GenerateObjectBitmapTables(bool compatObjBitmaps)
         {
             ObjBitmaps.Clear();
@@ -849,6 +895,7 @@ namespace LibDescent.Edit
             int lastObjectBitmap = 0;
             int lastObjectBitmapPointer = 0;
             Dictionary<string, int> objectBitmapMapping = new Dictionary<string, int>();
+            bool d1 = BaseFile is Descent1PIGFile;
 
             Polymodel model;
             if (compatObjBitmaps)
@@ -897,7 +944,7 @@ namespace LibDescent.Edit
                             {
                                 ObjBitmapPointers.Add((ushort)lastObjectBitmap);
                                 lastObjectBitmapPointer++;
-                                ObjBitmaps.Add((ushort)(piggyFile.GetBitmapIDFromName(textureName)));
+                                ObjBitmaps.Add((ushort)(GetBitmapIDFromName(piggyFile, textureName)));
                                 lastObjectBitmap++;
                             }
                         }
@@ -905,8 +952,8 @@ namespace LibDescent.Edit
                         //Descent's smart missile children are defined with model textures despite not being models so for compatibility add them in
                         if (i == Weapons[18].ModelNum || i == Weapons[28].ModelNum) //player and robot mega missiles
                         {
-                            ObjBitmaps.Add((ushort)(piggyFile.GetBitmapIDFromName("glow04"))); ObjBitmapPointers.Add((ushort)(ObjBitmaps.Count - 1));
-                            ObjBitmaps.Add((ushort)(piggyFile.GetBitmapIDFromName("rbot046"))); ObjBitmapPointers.Add((ushort)(ObjBitmaps.Count - 1));
+                            ObjBitmaps.Add((ushort)(GetBitmapIDFromName(piggyFile, "glow04"))); ObjBitmapPointers.Add((ushort)(ObjBitmaps.Count - 1));
+                            ObjBitmaps.Add((ushort)(GetBitmapIDFromName(piggyFile, "rbot046"))); ObjBitmapPointers.Add((ushort)(ObjBitmaps.Count - 1));
                             lastObjectBitmapPointer += 2; lastObjectBitmap += 2;
                         }
 
@@ -936,7 +983,7 @@ namespace LibDescent.Edit
                         if (!objectBitmapMapping.ContainsKey(textureName.ToLower()))
                         {
                             objectBitmapMapping.Add(textureName.ToLower(), lastObjectBitmap);
-                            ObjBitmaps.Add((ushort)(piggyFile.GetBitmapIDFromName(textureName)));
+                            ObjBitmaps.Add((ushort)(GetBitmapIDFromName(piggyFile, textureName)));
                             lastObjectBitmap++;
                         }
                         ObjBitmapPointers.Add((ushort)objectBitmapMapping[textureName.ToLower()]);
