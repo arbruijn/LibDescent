@@ -659,6 +659,8 @@ namespace LibDescent.Data
             weapon.RenderType = (WeaponRenderType)br.ReadByte();
             weapon.ModelNum = br.ReadByte();
             weapon.ModelNumInner = br.ReadByte();
+            if (weapon.ModelNumInner == 255)
+                weapon.ModelNumInner = -1;
             weapon.Persistent = br.ReadByte() != 0 ? true : false;
 
             weapon.MuzzleFlashVClip = br.ReadSByte();
