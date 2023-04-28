@@ -431,6 +431,9 @@ namespace LibDescent.Data
             int numBitmaps = br.ReadInt32();
             int numSounds = br.ReadInt32();
 
+            if (numBitmaps >= 1621 && numSounds == 0) // Likely the mac pig
+                big = true;
+
             for (int i = 0; i < numBitmaps; i++)
             {
                 bool hashitnull = false;
