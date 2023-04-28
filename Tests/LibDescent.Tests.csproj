@@ -1,57 +1,28 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-
-    <IsPackable>false</IsPackable>
+    <Configuration Condition ="'$(Configuration)' == ''">Debug</Configuration>
+    <Platform Condition ="'$(Platform)' == ''">AnyCPU</Platform>
+    <ProjectGuid>{8151622A-2ECD-4BFC-BA0A-D0570BB76EA9}</ProjectGuid>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+    <LangVersion>latest</LangVersion>
+    <OutputType>Library</OutputType>
   </PropertyGroup>
-
   <ItemGroup>
-    <None Remove="Bass_sample.mid" />
-    <None Remove="carpet.bbm" />
-    <None Remove="carpet.pcx" />
-    <None Remove="d2exit.mn2" />
-    <None Remove="d2x-xl.hog" />
-    <None Remove="DefaultSegment.xml" />
-    <None Remove="e2game02.hmp" />
-    <None Remove="fusfrens.rdl" />
-    <None Remove="NewConcussion.pof" />
-    <None Remove="standard.hog" />
-    <None Remove="test.blk" />
-    <None Remove="test.blx" />
-    <None Remove="test.rdl" />
-    <None Remove="test.rl2" />
-    <None Remove="ulterior.sng" />
-    <None Remove="vgame20.hmp" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Bass_sample.mid" />
-    <EmbeddedResource Include="carpet.bbm" />
-    <EmbeddedResource Include="carpet.pcx" />
-    <EmbeddedResource Include="d2exit.mn2" />
-    <EmbeddedResource Include="d2x-xl.hog" />
-    <EmbeddedResource Include="DefaultSegment.xml" />
-    <EmbeddedResource Include="e2game02.hmp" />
-    <EmbeddedResource Include="fusfrens.rdl" />
-    <EmbeddedResource Include="NewConcussion.pof" />
-    <EmbeddedResource Include="standard.hog" />
-    <EmbeddedResource Include="test.blk" />
-    <EmbeddedResource Include="test.blx" />
-    <EmbeddedResource Include="test.rdl" />
-    <EmbeddedResource Include="test.rl2" />
-    <EmbeddedResource Include="ulterior.sng" />
-    <EmbeddedResource Include="vgame20.hmp" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="nunit" Version="3.12.0" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.15.1" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <!--<Reference Include="Microsoft.CSharp" />-->
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors" />
+    <Reference Include="System.Text.RegularExpressions" />
+    <Reference Include="System.Xml.Linq" />
     <ProjectReference Include="..\Data\LibDescent.Data.csproj" />
+    <ProjectReference Include="..\Data\LibDescent.Edit.csproj" />
   </ItemGroup>
-
+  <ItemGroup>
+    <Compile Include="*.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
