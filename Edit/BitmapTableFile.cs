@@ -30,6 +30,20 @@ namespace LibDescent.Edit
 
         private static string[] AIBehaviors = { "STILL", "NORMAL", "BEHIND", "RUN_FROM", "SNIPE", "STATION", "FOLLOW" };
 
+        public static string[] pofNamesD1 = { "robot09.pof", "robot09s.pof", "robot17.pof", "robot22.pof", "robot22s.pof",
+            "robot01.pof", "robot01s.pof", "robot23.pof", "robot23s.pof", "robot37.pof", "robot37s.pof","robot09.pof", "robot09s.pof",
+            "robot26.pof", "robot27.pof", "robot27s.pof", "robot42.pof", "robot42s.pof", "robot08.pof", "robot16.pof", "robot16.pof",
+            "robot31.pof", "robot32.pof", "robot32s.pof", "robot43.pof", "robot09.pof", "robot09s.pof", "boss01.pof", "robot35.pof",
+            "robot35s.pof", "robot37.pof", "robot37s.pof", "robot38.pof", "robot38s.pof", "robot39.pof", "robot39s.pof", "robot40.pof",
+            "robot40s.pof", "boss02.pof",
+            "reactor.pof", "reactor2.pof", "exit01.pof", "exit01d.pof",
+            "pship1.pof", "pship1s.pof",
+            "pship1b.pof", "laser1-1.pof", "laser11s.pof", "laser12s.pof", "laser1-2.pof", "laser2-1.pof", "laser21s.pof", "laser22s.pof",
+            "laser2-2.pof", "laser3-1.pof", "laser31s.pof", "laser32s.pof", "laser3-2.pof", "laser4-1.pof", "laser41s.pof", "laser42s.pof",
+            "laser4-2.pof", "cmissile.pof", "flare.pof", "laser3-1.pof", "laser3-2.pof", "fusion1.pof", "fusion2.pof", "cmissile.pof",
+            "smissile.pof", "mmissile.pof", "cmissile.pof", "cmissile.pof", "laser1-1.pof", "laser1-2.pof", "laser4-1.pof", "laser4-2.pof",
+            "mmissile.pof"};
+
         public static string[] pofNames = { "robot09.pof", "robot09s.pof", "robot17.pof", "robot17s.pof", "robot22.pof", "robot22s.pof",
             "robot01.pof", "robot01s.pof", "robot23.pof", "robot23s.pof", "robot37.pof", "robot37s.pof","robot09.pof", "robot09s.pof",
             "robot26.pof", "robot27.pof", "robot27s.pof", "robot42.pof", "robot42s.pof", "robot08.pof", "robot16.pof", "robot16.pof",
@@ -736,9 +750,10 @@ namespace LibDescent.Edit
                 stringBuilder.Append("fixme.pof ");
                 return;
             }
+            bool d1 = datafile.BaseFile is Descent1PIGFile;
             Polymodel model = datafile.Models[id];
             //stringBuilder.AppendFormat("model{0}.pof ", id);
-            stringBuilder.AppendFormat("{0} ", pofNames[id]);
+            stringBuilder.AppendFormat("{0} ", d1 ? pofNamesD1[id] : pofNames[id]);
             if (!hack)
             {
                 foreach (string texture in model.TextureList)
