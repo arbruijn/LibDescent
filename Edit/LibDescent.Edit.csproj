@@ -1,29 +1,67 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
-    <Configuration Condition ="'$(Configuration)' == ''">Debug</Configuration>
-    <Platform Condition ="'$(Platform)' == ''">AnyCPU</Platform>
-    <ProjectGuid>{8151622A-2ECD-4BFC-BA0A-D0570BB76EA9}</ProjectGuid>
-    <OutputPath>bin\$(Configuration)\</OutputPath>
-    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
-    <LangVersion>latest</LangVersion>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{DDBAE7E1-EC77-411F-B921-0A3DBCAACB8C}</ProjectGuid>
     <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>LibDescent.Edit</RootNamespace>
+    <AssemblyName>LibDescent.Edit</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <!--<Reference Include="Microsoft.CSharp" />-->
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Numerics.Vectors" />
-    <Reference Include="System.Text.RegularExpressions" />
     <Reference Include="System.Xml.Linq" />
-    <ProjectReference Include="..\Data\LibDescent.Data.csproj" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="*.cs" />
-    <Compile Include="Level\*.cs" />
-    <Compile Include="Midi\*.cs" />
+    <Compile Include="BitmapTableFile.cs" />
+    <Compile Include="ChangeableList.cs" />
+    <Compile Include="ChangeableState.cs" />
+    <Compile Include="EditorHAMFile.cs" />
+    <Compile Include="EditorHOGFile.cs" />
+    <Compile Include="EditorHXMFile.cs" />
+    <Compile Include="EditorVHAMFile.cs" />
+    <Compile Include="ElementLists.cs" />
+    <Compile Include="PropertyNameTree.cs" />
+    <Compile Include="RobotData.cs" />
+    <Compile Include="RootStateEventListener.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Data\LibDescent.Data.csproj">
+      <Project>{e096c471-ef8c-460f-8767-7fd7cff73465}</Project>
+      <Name>LibDescent.Data</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

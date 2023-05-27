@@ -1,28 +1,135 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
-    <Configuration Condition ="'$(Configuration)' == ''">Debug</Configuration>
-    <Platform Condition ="'$(Platform)' == ''">AnyCPU</Platform>
-    <ProjectGuid>{8151622A-2ECD-4BFC-BA0A-D0570BB76EA9}</ProjectGuid>
-    <OutputPath>bin\$(Configuration)\</OutputPath>
-    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
-    <LangVersion>latest</LangVersion>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{E096C471-EF8C-460F-8767-7FD7CFF73465}</ProjectGuid>
     <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>LibDescent.Data</RootNamespace>
+    <AssemblyName>LibDescent.Data</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <!--<Reference Include="Microsoft.CSharp" />-->
     <Reference Include="System.Numerics" />
-    <Reference Include="System.Numerics.Vectors" />
-    <Reference Include="System.Text.RegularExpressions" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="*.cs" />
-    <Compile Include="Level\*.cs" />
-    <Compile Include="Midi\*.cs" />
+    <Compile Include="BBMImage.cs" />
+    <Compile Include="BinaryReaderBE.cs" />
+    <Compile Include="BinaryWriterBE.cs" />
+    <Compile Include="BSPModel.cs" />
+    <Compile Include="BSPTree.cs" />
+    <Compile Include="Color.cs" />
+    <Compile Include="Descent1PIGFile.cs" />
+    <Compile Include="DescentReader.cs" />
+    <Compile Include="DescentWriter.cs" />
+    <Compile Include="EClip.cs" />
+    <Compile Include="EditorObjectDefinition.cs" />
+    <Compile Include="ElementLists.cs" />
+    <Compile Include="Fix.cs" />
+    <Compile Include="FixVector.cs" />
+    <Compile Include="Font.cs" />
+    <Compile Include="HAMDataReader.cs" />
+    <Compile Include="HAMDataWriter.cs" />
+    <Compile Include="HAMElement.cs" />
+    <Compile Include="HAMFile.cs" />
+    <Compile Include="HOGFile.cs" />
+    <Compile Include="HOGLump.cs" />
+    <Compile Include="HXMFile.cs" />
+    <Compile Include="IDataFile.cs" />
+    <Compile Include="IElementManager.cs" />
+    <Compile Include="IGameDataDataFile.cs" />
+    <Compile Include="IGameDataProvider.cs" />
+    <Compile Include="IImageDataFile.cs" />
+    <Compile Include="IImageProvider.cs" />
+    <Compile Include="InsertionOrderedDictionary.cs" />
+    <Compile Include="ISoundDataFile.cs" />
+    <Compile Include="ISoundProvider.cs" />
+    <Compile Include="Level\AnimatedLight.cs" />
+    <Compile Include="Level\Block.cs" />
+    <Compile Include="Level\ControlType.cs" />
+    <Compile Include="Level\DynamicLight.cs" />
+    <Compile Include="Level\Level.cs" />
+    <Compile Include="Level\Level.IO.cs" />
+    <Compile Include="Level\LevelObject.cs" />
+    <Compile Include="Level\LevelTexture.cs" />
+    <Compile Include="Level\LevelVertex.cs" />
+    <Compile Include="Level\MatCenter.cs" />
+    <Compile Include="Level\MovementType.cs" />
+    <Compile Include="Level\RenderType.cs" />
+    <Compile Include="Level\Segment.cs" />
+    <Compile Include="Level\Segment.IO.cs" />
+    <Compile Include="Level\Side.cs" />
+    <Compile Include="Level\Trigger.cs" />
+    <Compile Include="Level\Wall.cs" />
+    <Compile Include="Midi\MIDIMessage.cs" />
+    <Compile Include="Midi\MIDISequence.cs" />
+    <Compile Include="MissionFile.cs" />
+    <Compile Include="ModelOpCode.cs" />
+    <Compile Include="NameHelper.cs" />
+    <Compile Include="Palette.cs" />
+    <Compile Include="PCXImage.cs" />
+    <Compile Include="PIGFile.cs" />
+    <Compile Include="PIGImage.cs" />
+    <Compile Include="POFReader.cs" />
+    <Compile Include="POFWriter.cs" />
+    <Compile Include="POGFile.cs" />
+    <Compile Include="Polymodel.cs" />
+    <Compile Include="PolymodelBuilder.cs" />
+    <Compile Include="PolymodelExtractor.cs" />
+    <Compile Include="Powerup.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PSXDatFile.cs" />
+    <Compile Include="Reactor.cs" />
+    <Compile Include="RLEEncoder.cs" />
+    <Compile Include="Robot.cs" />
+    <Compile Include="Ship.cs" />
+    <Compile Include="SNDFile.cs" />
+    <Compile Include="SongList.cs" />
+    <Compile Include="SparseArray.cs" />
+    <Compile Include="TMAPInfo.cs" />
+    <Compile Include="TXBConverter.cs" />
+    <Compile Include="Util.cs" />
+    <Compile Include="Uvl.cs" />
+    <Compile Include="VClip.cs" />
+    <Compile Include="VHAMFile.cs" />
+    <Compile Include="WClip.cs" />
+    <Compile Include="Weapon.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
